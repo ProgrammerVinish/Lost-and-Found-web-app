@@ -54,7 +54,7 @@ app.get("/items", (req, res) => {
 });
 
 app.post("/items", upload.single("image"), (req, res) => {
-  const { title, description, contact } = req.body;
+  const { title, description, contact, location } = req.body;
   if (!title || !description || !contact) {
     return res.status(400).json({ error: "Missing required fields: title, description, contact." });
   }
@@ -64,12 +64,34 @@ app.post("/items", upload.single("image"), (req, res) => {
     title: String(title),
     description: String(description),
     contact: String(contact),
+    location: String(location || ""),
+    status: "active",
     imageUrl,
     createdAt: new Date().toISOString(),
   };
   items.unshift(newItem);
   fs.writeFileSync(DB_FILE, JSON.stringify(items, null, 2));
   res.json(newItem);
+});
+
+// Update item status
+app.patch("/items/:id/status", (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  
+  if (!status || !["active", "resolved"].includes(status)) {
+    return res.status(400).json({ error: "Status must be 'active' or 'resolved'" });
+  }
+  
+  const itemIndex = items.findIndex(item => item.id === id);
+  if (itemIndex === -1) {
+    return res.status(404).json({ error: "Item not found" });
+  }
+  
+  items[itemIndex].status = status;
+  items[itemIndex].updatedAt = new Date().toISOString();
+  fs.writeFileSync(DB_FILE, JSON.stringify(items, null, 2));
+  res.json(items[itemIndex]);
 });
 
 // Error handler (for multer and others)
