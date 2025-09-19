@@ -1,34 +1,3 @@
 [
-  {
-    "id": "1758294582015",
-    "title": "Nokia",
-    "description": "cyan, new",
-    "contact": "mm7920460@gmail.com",
-    "imageUrl": "http://localhost:3000/uploads/1758294581974-Screenshot 2025-06-11 192652.png",
-    "createdAt": "2025-09-19T15:09:42.015Z"
-  },
-  {
-    "id": "1758294150415",
-    "title": "car",
-    "description": "red",
-    "contact": "7349192281",
-    "imageUrl": "http://localhost:3000/uploads/1758294150404-gta_vi_video_game_muscle_car-wallpaper-2560x1600.jpg",
-    "createdAt": "2025-09-19T15:02:30.415Z"
-  },
-  {
-    "id": "1758294070464",
-    "title": "s20",
-    "description": "silver, manglore",
-    "contact": "8431082593",
-    "imageUrl": "http://localhost:3000/uploads/1758294070458-shopping.webp",
-    "createdAt": "2025-09-19T15:01:10.464Z"
-  },
-  {
-    "id": "1758293724527",
-    "title": "dog",
-    "description": "brown",
-    "contact": "8431082593",
-    "imageUrl": "http://localhost:3000/uploads/1758293724510-ac8257e1cfc4e63f5c63f3d4869eb7c4.jpg",
-    "createdAt": "2025-09-19T14:55:24.527Z"
-  }
+  
 ]

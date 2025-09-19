@@ -8,6 +8,13 @@ dist/
 build/
 
 # Logs
+.env
 npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
+
+# ignore all files in uploads but keep .gitkeep so folder exists in repo
+/uploads/*
+!/uploads/.gitkeep
+/backend/uploads/*
+!/backend/uploads/.gitkeep
