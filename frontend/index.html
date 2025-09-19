@@ -72,6 +72,10 @@
                                     <input type="text" class="form-control" id="contact" name="contact" placeholder="Email or phone" required />
                                 </div>
                                 <div class="mb-3">
+                                    <label for="location" class="form-label">Location</label>
+                                    <input type="text" class="form-control" id="location" name="location" placeholder="Where was it lost/found?" />
+                                </div>
+                                <div class="mb-3">
                                     <label for="image" class="form-label">Image</label>
                                     <input type="file" class="form-control" id="image" name="image" accept="image/*" />
                                     <div class="form-text">Upload an image to help identify the item</div>
@@ -95,10 +99,21 @@
                 <div class="col-12">
                     <h2 class="text-center mb-4">Browse Items</h2>
                     <div class="row justify-content-center mb-4">
-                        <div class="col-md-6">
-                            <div class="input-group">
-                                <input type="search" class="form-control" id="search" placeholder="Search by title..." aria-label="Search by title" />
-                                <span class="input-group-text" id="results-count"></span>
+                        <div class="col-md-8">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <input type="search" class="form-control" id="search" placeholder="Search by title..." aria-label="Search by title" />
+                                        <span class="input-group-text" id="results-count"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <select class="form-select" id="sort-select" aria-label="Sort items">
+                                        <option value="newest">Sort by Newest</option>
+                                        <option value="oldest">Sort by Oldest</option>
+                                        <option value="location">Sort by Location</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -111,7 +126,7 @@
     <!-- Footer -->
     <footer class="bg-dark text-light py-4">
         <div class="container text-center">
-            <small>Hackathon MVP • Ready for backend integration</small>
+            <small>&copy; 2025 Lost & Found Portal. All rights reserved.</small>
         </div>
     </footer>
 

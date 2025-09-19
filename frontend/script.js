@@ -8,6 +8,8 @@ let items = [
     title: "Black Wallet",
     description: "Leather wallet with a blue sticker inside. Lost near library.",
     contact: "jane@example.com",
+    location: "University Library",
+    status: "active",
     imageUrl: "https://images.unsplash.com/photo-1518445699137-7b95c4b9f53b?w=800&q=80&auto=format&fit=crop",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString()
   },
@@ -16,6 +18,8 @@ let items = [
     title: "Keys with Red Keychain",
     description: "Set of car and house keys on a red keychain.",
     contact: "+1 (555) 123-4567",
+    location: "Parking Lot B",
+    status: "resolved",
     imageUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80&auto=format&fit=crop",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
   }
@@ -24,6 +28,7 @@ let items = [
 // Elements
 const itemsListEl = document.getElementById("items-list");
 const searchInputEl = document.getElementById("search");
+const sortSelectEl = document.getElementById("sort-select");
 const formEl = document.getElementById("upload-form");
 const formMessageEl = document.getElementById("form-message");
 const submitBtnEl = document.getElementById("submit-btn");
@@ -71,11 +76,40 @@ async function postItemToBackend(formData) {
       title: formData.get("title"),
       description: formData.get("description"),
       contact: formData.get("contact"),
+      location: formData.get("location") || "",
+      status: "active",
       imageUrl: await readImageAsDataUrl(formData.get("image")),
       createdAt: now
     };
     items.unshift(newItem);
     return newItem;
+  }
+}
+
+async function updateItemStatus(itemId, status) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/items/${itemId}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status })
+    });
+    if (!response.ok) throw new Error(`Failed: ${response.status}`);
+    const updatedItem = await response.json();
+    // Update local items array
+    const index = items.findIndex(item => item.id === itemId);
+    if (index !== -1) {
+      items[index] = updatedItem;
+    }
+    return updatedItem;
+  } catch (err) {
+    console.warn("Failed to update status, updating locally:", err.message);
+    // Fallback: update locally
+    const index = items.findIndex(item => item.id === itemId);
+    if (index !== -1) {
+      items[index].status = status;
+      items[index].updatedAt = new Date().toISOString();
+    }
+    return items[index];
   }
 }
 
@@ -96,14 +130,26 @@ function createItemCard(item) {
   const div = document.createElement("div");
   div.className = "col-md-6 col-lg-4";
   const imageSrc = item.imageUrl || "";
+  const statusBadge = item.status === "resolved" ? 
+    '<span class="badge bg-success">Resolved</span>' : 
+    '<span class="badge bg-primary">Active</span>';
+  const locationText = item.location ? `<small class="text-muted d-block mb-2"><i class="bi bi-geo-alt"></i> ${escapeHtml(item.location)}</small>` : "";
+  const resolveButton = item.status === "active" ? 
+    `<button class="btn btn-outline-success btn-sm mt-2" onclick="markAsResolved('${item.id}')">Mark as Resolved</button>` : "";
+  
   div.innerHTML = `
     <div class="card item-card h-100">
       <img src="${imageSrc}" class="card-img-top" alt="${escapeHtml(item.title)}" onerror="this.style.display='none'" />
       <div class="card-body d-flex flex-column">
-        <h5 class="card-title">${escapeHtml(item.title)}</h5>
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h5 class="card-title">${escapeHtml(item.title)}</h5>
+          ${statusBadge}
+        </div>
+        ${locationText}
         <p class="card-text">${escapeHtml(item.description)}</p>
         <div class="mt-auto">
           <a class="contact-btn" href="${escapeHtml(getContactHref(item.contact))}">Contact</a>
+          ${resolveButton}
         </div>
         <small class="text-muted mt-2">Posted ${formatRelativeDate(item.createdAt)}</small>
       </div>
@@ -140,11 +186,51 @@ async function loadItems() {
     title: x.title || "Untitled",
     description: x.description || "",
     contact: x.contact || "",
+    location: x.location || "",
+    status: x.status || "active",
     imageUrl: x.imageUrl || x.image || "",
     createdAt: x.createdAt || x.date || new Date().toISOString()
   }));
   items = normalized;
-  renderItems(items);
+  applySortingAndFilter();
+}
+
+function applySortingAndFilter() {
+  let filtered = [...items];
+  
+  // Apply search filter
+  const searchQuery = searchInputEl?.value?.trim().toLowerCase() || "";
+  if (searchQuery) {
+    filtered = filtered.filter(item => 
+      (item.title || "").toLowerCase().includes(searchQuery) ||
+      (item.location || "").toLowerCase().includes(searchQuery)
+    );
+  }
+  
+  // Apply sorting
+  const sortBy = sortSelectEl?.value || "newest";
+  switch (sortBy) {
+    case "newest":
+      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      break;
+    case "oldest":
+      filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      break;
+    case "location":
+      filtered.sort((a, b) => (a.location || "").localeCompare(b.location || ""));
+      break;
+  }
+  
+  renderItems(filtered);
+}
+
+async function markAsResolved(itemId) {
+  try {
+    await updateItemStatus(itemId, "resolved");
+    applySortingAndFilter(); // Re-render with updated status
+  } catch (err) {
+    console.error("Failed to mark as resolved:", err);
+  }
 }
 
 // Form handling
@@ -169,7 +255,7 @@ formEl?.addEventListener("submit", async (e) => {
     // Reset form
     formEl.reset();
     // Re-render list (already updated in demo mode)
-    renderItems(items);
+    applySortingAndFilter();
   } catch (err) {
     showMessage("Failed to submit item.", "error");
   } finally {
@@ -198,16 +284,12 @@ function clearMessage() {
 }
 
 // Search filter
-const debouncedFilter = debounce((q) => {
-  if (!q) return renderItems(items);
-  const filtered = items.filter((it) => (it.title || "").toLowerCase().includes(q));
-  renderItems(filtered);
+const debouncedFilter = debounce(() => {
+  applySortingAndFilter();
 }, 150);
 
-searchInputEl?.addEventListener("input", (e) => {
-  const q = e.target.value.trim().toLowerCase();
-  debouncedFilter(q);
-});
+searchInputEl?.addEventListener("input", debouncedFilter);
+sortSelectEl?.addEventListener("change", applySortingAndFilter);
 
 // Helpers
 function escapeHtml(str = "") {
