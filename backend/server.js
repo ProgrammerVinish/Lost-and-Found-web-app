@@ -10,6 +10,8 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, "frontend")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Ensure uploads directory exists
@@ -122,6 +124,11 @@ app.delete("/items/:id", (req, res) => {
   fs.writeFileSync(DB_FILE, JSON.stringify(items, null, 2));
   
   res.json({ message: "Item deleted successfully", deletedId: id });
+});
+
+// Fallback: send index.html for any unknown routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "frontend", "index.html"));
 });
 
 // Error handler (for multer and others)
