@@ -129,7 +129,12 @@ app.delete("/items/:id", (req, res) => {
 // Fallback: send index.html for any unknown routes
 
 // Serve frontend for all unknown routes (SPA routing)
-app.get("*", (req, res) => {
+app.use((req, res, next) => {
+  // Skip API routes
+  if (req.path.startsWith('/api') || req.path.startsWith('/items') || req.path.startsWith('/uploads') || req.path.startsWith('/health')) {
+    return next();
+  }
+  // Serve index.html for all other routes
   res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
 });
 
