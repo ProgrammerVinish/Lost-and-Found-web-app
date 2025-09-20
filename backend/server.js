@@ -94,6 +94,36 @@ app.patch("/items/:id/status", (req, res) => {
   res.json(items[itemIndex]);
 });
 
+// Delete item
+app.delete("/items/:id", (req, res) => {
+  const { id } = req.params;
+  
+  const itemIndex = items.findIndex(item => item.id === id);
+  if (itemIndex === -1) {
+    return res.status(404).json({ error: "Item not found" });
+  }
+  
+  // Remove associated image file if it exists
+  const item = items[itemIndex];
+  if (item.imageUrl) {
+    const filename = item.imageUrl.split('/').pop();
+    const imagePath = path.join(UPLOADS_DIR, filename);
+    if (fs.existsSync(imagePath)) {
+      try {
+        fs.unlinkSync(imagePath);
+      } catch (err) {
+        console.warn("Failed to delete image file:", err.message);
+      }
+    }
+  }
+  
+  // Remove item from array
+  items.splice(itemIndex, 1);
+  fs.writeFileSync(DB_FILE, JSON.stringify(items, null, 2));
+  
+  res.json({ message: "Item deleted successfully", deletedId: id });
+});
+
 // Error handler (for multer and others)
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {

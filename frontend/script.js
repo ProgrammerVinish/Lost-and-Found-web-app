@@ -148,8 +148,11 @@ function createItemCard(item) {
         ${locationText}
         <p class="card-text">${escapeHtml(item.description)}</p>
         <div class="mt-auto">
-          <a class="contact-btn" href="${escapeHtml(getContactHref(item.contact))}">Contact</a>
-          ${resolveButton}
+          <div class="d-flex gap-2 flex-wrap">
+            <a class="contact-btn" href="${escapeHtml(getContactHref(item.contact))}">Contact</a>
+            ${resolveButton}
+            <button class="btn btn-outline-danger btn-sm" onclick="deleteItem('${item.id}')">Delete</button>
+          </div>
         </div>
         <small class="text-muted mt-2">Posted ${formatRelativeDate(item.createdAt)}</small>
       </div>
@@ -230,6 +233,35 @@ async function markAsResolved(itemId) {
     applySortingAndFilter(); // Re-render with updated status
   } catch (err) {
     console.error("Failed to mark as resolved:", err);
+  }
+}
+
+async function deleteItem(itemId) {
+  if (!confirm("Are you sure you want to delete this item? This action cannot be undone.")) {
+    return;
+  }
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}/items/${itemId}`, {
+      method: "DELETE"
+    });
+    if (!response.ok) throw new Error(`Failed: ${response.status}`);
+    
+    // Remove from local items array
+    const index = items.findIndex(item => item.id === itemId);
+    if (index !== -1) {
+      items.splice(index, 1);
+    }
+    
+    applySortingAndFilter(); // Re-render without deleted item
+  } catch (err) {
+    console.warn("Failed to delete item, removing locally:", err.message);
+    // Fallback: remove locally
+    const index = items.findIndex(item => item.id === itemId);
+    if (index !== -1) {
+      items.splice(index, 1);
+      applySortingAndFilter();
+    }
   }
 }
 
