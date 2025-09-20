@@ -1,5 +1,5 @@
 // Integration-ready constants
-const API_BASE_URL = "http://localhost:3000"; // Adjust when backend is ready
+const API_BASE_URL = window.location.origin; // Automatically uses current domain (localhost in dev, render.com in prod)
 
 // In-memory fallback data for demo before backend is connected
 let items = [

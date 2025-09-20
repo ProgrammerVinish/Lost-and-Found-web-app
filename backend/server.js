@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 // Serve frontend static files
-app.use(express.static(path.join(__dirname, "frontend")));
+app.use(express.static(path.join(__dirname, "..", "frontend")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Ensure uploads directory exists
@@ -127,8 +127,10 @@ app.delete("/items/:id", (req, res) => {
 });
 
 // Fallback: send index.html for any unknown routes
+
+// Serve frontend for all unknown routes (SPA routing)
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "frontend", "index.html"));
+  res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
 });
 
 // Error handler (for multer and others)
