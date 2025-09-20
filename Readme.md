@@ -9,7 +9,7 @@ A simple Lost & Found web app where students can upload lost/found items with im
     Data is saved in items.json so it persists.
 
 🛠️ Tools & Tech:
-    Frontend: HTML, CSS, JavaScript
+    Frontend: HTML, CSS, JavaScript, Bootstrap 5 (CSS + JS via CDN)
     Backend: Node.js + Express.js
     Database: JSON file (for demo)
     File Storage: Local /uploads folder for images
@@ -17,10 +17,11 @@ A simple Lost & Found web app where students can upload lost/found items with im
     Editor: Cursor AI
 
 🌐 API Endpoints:
-    GET /health → check if server is running
+    GET /health → check server status
     GET /items → fetch all items
-    POST /items → upload a new item (with image)
-    PATCH /items/:id → update item status
+    POST /items → add new item (with image)
+    PATCH /items/:id/status → update item status
+    DELETE /items/:id → delete item + image
     /uploads/... → serve uploaded images
 
 🚀 How to Run Backend
@@ -52,11 +53,11 @@ Lost and Found/
 └── README.md
 
 🔮 Future Improvements:
-    User authentication (prevent spam)
+    User authentication
     Categories (books, electronics, ID cards, pets)
-    Notifications (email/SMS when item found)
-    Admin dashboard to remove old/spam listings
-    Replace JSON with MongoDB or Firebase
-    Deploy online (Render/Vercel/Heroku)
+    Notifications (email/SMS)
+    Admin dashboard
+    Replace JSON with MongoDB / Firebase
+    Deploy online (Render, Vercel, Heroku)
 
 ✍️ Built by students in 1 day with help from AI + teamwork.
